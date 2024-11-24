@@ -7,7 +7,7 @@ DB_HOST = "192.168.0.15"
 DB_PORT = 26256
 DB_NAME = "defaultdb"
 DB_USER = "root"
-DB_PASSWORD = None  # Replace with your password if applicable
+DB_PASSWORD = None 
 SSL_MODE = "disable"
 
 # SQLAlchemy connection URL
