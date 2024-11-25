@@ -1,34 +1,27 @@
 import pandas as pd
-from cockroachdb.sqlalchemy import run_transaction
-from sqlalchemy import create_engine, text
+import psycopg2
+from psycopg2.extras import execute_values
 
 # Database connection details
 DB_HOST = "192.168.0.15"
 DB_PORT = 26256
 DB_NAME = "defaultdb"
 DB_USER = "root"
-DB_PASSWORD = None 
-SSL_MODE = "disable"
-
-# SQLAlchemy connection URL
-DB_URL = f"cockroachdb://{DB_USER}@{DB_HOST}:{DB_PORT}/{DB_NAME}?sslmode={SSL_MODE}"
+DB_PASSWORD = None  # Replace with your password if applicable
 
 # Function to insert data into a table
-def insert_data_into_table(conn, table_name, dataframe, columns):
+def insert_data_into_table(cursor, table_name, dataframe, columns):
     """
     Insert data into the specified table.
     
-    :param conn: Database connection object
+    :param cursor: Database cursor object
     :param table_name: Name of the table
     :param dataframe: DataFrame containing the data
     :param columns: Columns to insert data into
     """
     values = [tuple(row) for row in dataframe[columns].itertuples(index=False)]
-    placeholders = ", ".join([f":{col}" for col in columns])
-    sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})"
-    with conn.begin() as transaction:
-        for value in values:
-            transaction.execute(text(sql), {col: val for col, val in zip(columns, value)})
+    sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES %s"
+    execute_values(cursor, sql, values)
 
 # Load data from Excel
 excel_file = 'database_tables.xlsx'  # Replace with the path to your Excel file
@@ -42,24 +35,40 @@ sheets = {
     'Traffic_Signals': ['location', 'status', 'last_updated'],
 }
 
-# Connect to the CockroachDB database using SQLAlchemy
-engine = create_engine(DB_URL)
+# Connect to the CockroachDB database
 try:
-    with engine.connect() as conn:
-        print("Connected to the database successfully.")
-        
-        for sheet, columns in sheets.items():
-            # Load the sheet into a DataFrame
-            data = pd.read_excel(excel_file, sheet_name=sheet)
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD
+    )
+    cursor = conn.cursor()
+    print("Connected to the database successfully.")
 
-            # Convert 'battery_level' to decimal if in percentages
-            if 'battery_level' in data.columns:
-                data['battery_level'] = data['battery_level'].str.rstrip('%').astype(float)
+    for sheet, columns in sheets.items():
+        # Load the sheet into a DataFrame
+        data = pd.read_excel(excel_file, sheet_name=sheet)
 
-            # Insert data into the corresponding table
-            insert_data_into_table(conn, sheet.lower(), data, columns)
-            print(f"Data inserted into {sheet.lower()} table successfully.")
-        
-        print("All data inserted successfully.")
+        # Convert 'battery_level' to decimal if in percentages
+        if 'battery_level' in data.columns:
+            data['battery_level'] = data['battery_level'].str.rstrip('%').astype(float)
+
+        # Insert data into the corresponding table
+        insert_data_into_table(cursor, sheet.lower(), data, columns)
+        print(f"Data inserted into {sheet.lower()} table successfully.")
+
+    # Commit the transaction
+    conn.commit()
+    print("All data inserted successfully.")
+
 except Exception as e:
     print(f"An error occurred: {e}")
+
+finally:
+    if cursor:
+        cursor.close()
+    if conn:
+        conn.close()
+    print("Database connection closed.")
