@@ -5,7 +5,7 @@ from psycopg2.extras import execute_values
 # Database connection details
 DB_HOST = "192.168.0.15"
 DB_PORT = 26256
-DB_NAME = "defaultdb"
+DB_NAME = "autonomous_vehicle_system"
 DB_USER = "root"
 DB_PASSWORD = None  # Replace with your password if applicable
 
@@ -24,7 +24,7 @@ def insert_data_into_table(cursor, table_name, dataframe, columns):
     execute_values(cursor, sql, values)
 
 # Load data from Excel
-excel_file = '../../data/database_tables.xlsx'  
+excel_file = '/Users/vatsalshah/Documents/Workspace/ASU Courses/SEM3/DDS/project/data/database_tables.xlsx'  
 sheets = {
     'Vehicles': ['model', 'manufacturer', 'autonomy_level', 'battery_level', 'current_location', 'status'],
     'Vehicle_Status': ['vehicle_id', 'timestamp', 'speed', 'direction', 'proximity_alert', 'road_condition', 'next_destination'],
@@ -55,7 +55,7 @@ try:
         if 'battery_level' in data.columns:
             data['battery_level'] = data['battery_level'].str.rstrip('%').astype(float)
 
-        # Insert data into the corresponding table
+        print(f"Inserting data into {sheet.lower()} table...")
         insert_data_into_table(cursor, sheet.lower(), data, columns)
         print(f"Data inserted into {sheet.lower()} table successfully.")
 
