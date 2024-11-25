@@ -7,7 +7,7 @@ DB_HOST = "192.168.0.15"
 DB_PORT = 26256
 DB_NAME = "autonomous_vehicle_system"
 DB_USER = "root"
-DB_PASSWORD = None  # Replace with your password if applicable
+DB_PASSWORD = None  # Replace with your password if applicableclear
 
 # Function to insert data into a table
 def insert_data_into_table(cursor, table_name, dataframe, columns):
@@ -20,19 +20,21 @@ def insert_data_into_table(cursor, table_name, dataframe, columns):
     :param columns: Columns to insert data into
     """
     values = [tuple(row) for row in dataframe[columns].itertuples(index=False)]
+    
     sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES %s"
     execute_values(cursor, sql, values)
+    conn.commit()
 
 # Load data from Excel
-excel_file = '/Users/vatsalshah/Documents/Workspace/ASU Courses/SEM3/DDS/project/data/database_tables.xlsx'  
+excel_file = '/Users/vatsalshah/Documents/Workspace/ASU Courses/SEM3/DDS/project/data/database_tables.xlsx'
 sheets = {
-    'Vehicles': ['model', 'manufacturer', 'autonomy_level', 'battery_level', 'current_location', 'status'],
-    'Vehicle_Status': ['vehicle_id', 'timestamp', 'speed', 'direction', 'proximity_alert', 'road_condition', 'next_destination'],
-    'Routes': ['vehicle_id', 'origin', 'destination', 'route_points'],
-    'Control_Commands': ['vehicle_id', 'timestamp', 'command_type', 'details'],
-    'Collision_Warnings': ['vehicle_id', 'timestamp', 'location', 'severity'],
-    'Road_Sensors': ['location', 'sensor_type', 'status', 'last_updated'],
-    'Traffic_Signals': ['location', 'status', 'last_updated'],
+    #'Vehicles': ['vehicle_id', 'model', 'manufacturer', 'autonomy_level', 'battery_level', 'latitude', 'longitude', 'status'],
+    'Routes': ['route_id', 'vehicle_id', 'origin_latitude', 'origin_longitude', 'destination_latitude', 'destination_longitude', 'route_points'],
+    'Control_Commands': ['command_id', 'vehicle_id', 'timestamp', 'command_type', 'details'],
+    'Collision_Warnings': ['warning_id', 'vehicle_id', 'timestamp', 'latitude', 'longitude', 'severity'],
+    'Road_Sensors': ['sensor_id', 'latitude', 'longitude', 'sensor_type', 'status', 'last_updated'],
+    'Traffic_Signals': ['signal_id', 'latitude', 'longitude', 'status', 'last_updated'],
+    'Vehicle_Status': ['vehicle_id', 'timestamp', 'speed', 'direction', 'proximity_alert', 'road_condition', 'latitude', 'longitude']
 }
 
 # Connect to the CockroachDB database
@@ -51,13 +53,20 @@ try:
         # Load the sheet into a DataFrame
         data = pd.read_excel(excel_file, sheet_name=sheet)
 
-        # Convert 'battery_level' to decimal if in percentages
+        # Convert specific columns for formatting
         if 'battery_level' in data.columns:
+            # Strip '%' and convert to float
             data['battery_level'] = data['battery_level'].str.rstrip('%').astype(float)
 
-        
-        insert_data_into_table(cursor, sheet.lower(), data, columns)
-        print(f"Data inserted into {sheet.lower()} table successfully.")
+        if 'route_points' in data.columns:
+            data['route_points'] = data['route_points'].apply(lambda x: x if isinstance(x, str) else "{}")  # Handle JSON-like data
+
+        # Insert data into the respective table
+        table_name = f"autonomous_vehicle_system.public.{sheet.lower()}"
+        print(f"Inserting data into {table_name}...")
+        insert_data_into_table(cursor, table_name, data, columns)
+        print(f"Data inserted into {table_name} table successfully.")
+        conn.commit()
 
     # Commit the transaction
     conn.commit()
