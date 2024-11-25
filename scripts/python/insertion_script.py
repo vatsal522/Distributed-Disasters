@@ -24,7 +24,7 @@ def insert_data_into_table(cursor, table_name, dataframe, columns):
     execute_values(cursor, sql, values)
 
 # Load data from Excel
-excel_file = 'database_tables.xlsx'  # Replace with the path to your Excel file
+excel_file = '../../data/database_tables.xlsx'  
 sheets = {
     'Vehicles': ['model', 'manufacturer', 'autonomy_level', 'battery_level', 'current_location', 'status'],
     'Vehicle_Status': ['vehicle_id', 'timestamp', 'speed', 'direction', 'proximity_alert', 'road_condition', 'next_destination'],
