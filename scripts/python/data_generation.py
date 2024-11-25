@@ -22,7 +22,7 @@ def generate_vehicles_data():
         "model": [fake.word().capitalize() + " Model " + random.choice(["X", "Y", "Z"]) for _ in range(50)],
         "manufacturer": [random.choice(["Tesla", "Waymo", "Cruise", "Uber", "Ford", "Toyota", "Nissan"]) for _ in range(50)],
         "autonomy_level": [random.randint(1, 5) for _ in range(50)],
-        "battery_level": [f"{random.randint(50, 100)}%" for _ in range(50)],
+        "battery_level": [f"{random.randint(50, 100)}" for _ in range(50)],
         "latitude": [f"{fake.latitude():.6f}" for _ in range(50)],
         "longitude": [f"{fake.longitude():.6f}" for _ in range(50)],
         "status": [random.choice(["Active", "In Transit", "Idle", "Charging"]) for _ in range(50)]

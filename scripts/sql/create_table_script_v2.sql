@@ -35,7 +35,6 @@ CREATE TABLE routes (
     origin_longitude DECIMAL(9, 6) NOT NULL,
     destination_latitude DECIMAL(9, 6) NOT NULL,
     destination_longitude DECIMAL(9, 6) NOT NULL,
-    destination TEXT NOT NULL,
     route_points JSONB NOT NULL -- Storing route points as JSON for flexibility
 );
 

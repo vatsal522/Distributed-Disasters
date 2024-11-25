@@ -22,6 +22,16 @@ def insert_data_into_table(cursor, table_name, dataframe, columns):
     :param columns: Columns to insert data into
     """
     values = [tuple(row) for row in dataframe[columns].itertuples(index=False)]
+    # Convert dataframe to list of tuples
+    # values = [tuple(x) for x in dataframe.to_numpy()]
+    
+    # Convert route_points to JSON if the table is 'routes'
+    if table_name == 'routes':
+        for i, value in enumerate(values):
+            value = list(value)
+            value[6] = json.dumps(value[6])  # Convert route_points to JSON
+            values[i] = tuple(value)
+
     sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES %s"
     print(sql)  # Print the SQL statement for verification
     execute_values(cursor, sql, values)
@@ -54,14 +64,31 @@ def consume_messages():
 
         while True:
             # Poll for a message from the 'vehicles' topic
-            msg = vehicle_consumer.poll(timeout=1.0)  # Timeout in seconds
+            msg = vehicle_consumer.poll(timeout=2.0)  # Timeout in seconds
 
             if msg is None:
-                # If no message from 'vehicles', poll from other topics
-                msg = other_consumer.poll(timeout=1.0)
+                break  # Exit the inner loop to poll from other topics
+            if msg.error():
+                if msg.error().code() == KafkaError._PARTITION_EOF:
+                    continue
+                else:
+                    print(f"Error: {msg.error()}")
+                    continue
+
+            # Process the message
+            print(f"Received message: {msg.value().decode('utf-8')} from topic: {msg.topic()}")
+            data = json.loads(msg.value().decode('utf-8'))
+            table_name = msg.topic()
+            dataframe = pd.DataFrame([data])
+            columns = dataframe.columns.tolist()
+            insert_data_into_table(cursor, table_name, dataframe, columns)
+
+        while True:
+            # Poll for a message from the other topics
+            msg = other_consumer.poll(timeout=1.0)  # Timeout in seconds
 
             if msg is None:
-                continue
+                continue  # Exit the inner loop to poll from 'vehicles' topic again
             if msg.error():
                 if msg.error().code() == KafkaError._PARTITION_EOF:
                     continue
