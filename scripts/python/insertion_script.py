@@ -55,7 +55,7 @@ try:
         if 'battery_level' in data.columns:
             data['battery_level'] = data['battery_level'].str.rstrip('%').astype(float)
 
-        print(f"Inserting data into {sheet.lower()} table...")
+        
         insert_data_into_table(cursor, sheet.lower(), data, columns)
         print(f"Data inserted into {sheet.lower()} table successfully.")
 
