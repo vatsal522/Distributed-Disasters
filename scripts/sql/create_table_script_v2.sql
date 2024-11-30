@@ -1,7 +1,3 @@
--- Create the database
--- CREATE DATABASE autonomous_vehicle_system;
-
--- Use the database
 USE autonomous_vehicle_system;
 
 CREATE TABLE vehicles (
@@ -39,7 +35,6 @@ CREATE TABLE routes (
     origin_longitude DECIMAL(9, 6) NOT NULL,
     destination_latitude DECIMAL(9, 6) NOT NULL,
     destination_longitude DECIMAL(9, 6) NOT NULL,
-    destination TEXT NOT NULL,
     route_points JSONB NOT NULL -- Storing route points as JSON for flexibility
 );
 
@@ -51,7 +46,6 @@ CREATE TABLE vehicle_status (
     direction TEXT NOT NULL,
     proximity_alert TEXT,
     road_condition TEXT,
-    next_destination text,
     latitude DECIMAL(9, 6) NOT NULL,
     longitude DECIMAL(9, 6) NOT NULL,
     PRIMARY KEY (vehicle_id, timestamp)
@@ -60,18 +54,19 @@ CREATE TABLE vehicle_status (
 
 CREATE TABLE road_sensors (
     sensor_id SERIAL PRIMARY KEY,
-    sensor_type TEXT NOT NULL,
     latitude DECIMAL(9, 6) NOT NULL,
     longitude DECIMAL(9, 6) NOT NULL,
+    sensor_type TEXT NOT NULL,
+
     status TEXT NOT NULL,
     last_updated TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE traffic_signals (
     signal_id SERIAL PRIMARY KEY,
-    status TEXT NOT NULL,
     latitude DECIMAL(9, 6) NOT NULL,
     longitude DECIMAL(9, 6) NOT NULL,
+    status TEXT NOT NULL,
     last_updated TIMESTAMPTZ DEFAULT now()
 );
 
