@@ -49,7 +49,7 @@ def generate_sf_data():
         if 'geometry' in row:
             coords = list(row['geometry'].coords)
             for coord in coords:
-                road_coordinates.append((coord[1], coord[0]))  # (latitude, longitude)
+                road_coordinates.append((coord[0], coord[1]))  # (latitude, longitude)
 
     global SF_ROAD_COORDINATES
     global SF_INTERSECTION_COORDINATES
@@ -62,9 +62,11 @@ def pick_random_sf_coordinates():
 
     road_or_intersection = random.choice(["road", "intersection"])
     if road_or_intersection == "road":
-        return SF_ROAD_COORDINATES.sample().values[0]
+        sample = SF_ROAD_COORDINATES.sample()
+        return sample.values[0][1], sample.values[0][0]
     else:
-        return SF_INTERSECTION_COORDINATES.sample().values[0]
+        sample = SF_INTERSECTION_COORDINATES.sample()
+        return sample.values[0][1], sample.values[0][0]
 
 
 def pick_random_vehicle_id():
@@ -86,7 +88,7 @@ def generate_vehicles_data():
             "model": fake.word().capitalize() + " Model " + random.choice(["X", "Y", "Z"]),
             "manufacturer": random.choice(["Tesla", "Waymo", "Cruise", "Uber", "Ford", "Toyota", "Nissan"]),
             "autonomy_level": random.randint(1, 5),
-            "battery_level": f"{random.randint(50, 100)}",
+            "battery_level": f"{random.randint(0, 100)}",
             "latitude": f"{lat:.6f}",
             "longitude": f"{lon:.6f}",
             "status": random.choice(["Active", "In Transit", "Idle", "Charging"])
@@ -101,7 +103,7 @@ def generate_vehicle_status_data():
         lat, lon = pick_random_sf_coordinates()
         vehicle_status = {
             "vehicle_id": pick_random_vehicle_id(),
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": generate_random_timestamp(datetime.now() - timedelta(seconds=3600), datetime.now()).strftime("%Y-%m-%d %H:%M:%S"),
             "speed": random.randint(0, 120),
             "direction": random.choice(["North", "South", "East", "West"]),
             "proximity_alert": random.choice(["None", "Car ahead", "Pedestrian near", "Obstacle detected"]),
@@ -120,7 +122,11 @@ def generate_routes_data():
         route_id = str(i)+"-"+str(vehicle_id)+"-"+str(time.time())
         origin_lat, origin_lon = pick_random_sf_coordinates()
         destination_lat, destination_lon = pick_random_sf_coordinates()
-        route_points = [f"{pick_random_sf_coordinates()[0]:.6f},{pick_random_sf_coordinates()[1]:.6f}" for _ in range(5)]
+        for _ in range(5):
+            route_points = []
+            for _ in range(random.randint(1, 5)):
+                lat, lon = pick_random_sf_coordinates()
+                route_points.append(f"{lat:.6f},{lon:.6f}")
         route_data = {
             "route_id": route_id,
             "vehicle_id": vehicle_id,
@@ -136,13 +142,13 @@ def generate_routes_data():
 # Generate data for the control_commands table
 def generate_control_commands_data():
     data = []
-    for i in range(10000):
+    for i in range(100000):
         vehicle_id = pick_random_vehicle_id()
         command_id = str(i)+"-"+str(vehicle_id)+"-"+str(time.time())
         command_data = {
             "command_id": command_id,
             "vehicle_id": vehicle_id,
-            "timestamp":  datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp":  generate_random_timestamp(datetime.now() - timedelta(seconds=3600), datetime.now()).strftime("%Y-%m-%d %H:%M:%S"),
             "command_type": random.choice(["Change Speed", "Change Route", "Stop"]),
             "details": fake.sentence()
         }

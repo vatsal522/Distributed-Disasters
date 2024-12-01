@@ -3,6 +3,7 @@ from psycopg2.extras import execute_values
 import pandas as pd
 from confluent_kafka import Consumer, KafkaException, KafkaError
 import json
+from datetime import datetime
 
 # Database connection parameters
 DB_NAME = "autonomous_vehicle_system"
@@ -33,6 +34,11 @@ def insert_data_into_table(cursor, table_name, dataframe, columns):
             value[6] = json.dumps(value[6])  # Convert route_points to JSON
             values[i] = tuple(value)
 
+    if table_name == 'control_commands':
+        for i, value in enumerate(values):
+            value = list(value)
+            value[2] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Set the timestamp to the current time
+
     sql = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES %s"
     print(sql)  # Print the SQL statement for verification
     execute_values(cursor, sql, values)
@@ -41,7 +47,7 @@ def insert_data_into_table(cursor, table_name, dataframe, columns):
 # Kafka Consumer configuration
 KAFKA_BROKER = 'localhost:9092'  # Replace with your Kafka broker's address
 TOPICS = ['vehicles', 'vehicle_status', 'routes', 'control_commands', 'collision_warnings', 'road_sensors', 'traffic_signals']  # List of topics to subscribe to
-GROUP_ID = 'python_kafka_consumer9'  # Consumer group ID
+GROUP_ID = 'python_kafka_consumer11'  # Consumer group ID
 
 def consume_messages():
     # Consumer configuration
