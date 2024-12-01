@@ -1,4 +1,5 @@
----
+version: "3.7"
+
 services:
 
   broker:
@@ -27,6 +28,15 @@ services:
       # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
       # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      # Confluent Metrics Reporter
+      METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 2
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: PLAINTEXT_HOST://0.0.0.0:9092
+      CONFLUENT_METRICS_REPORTER_PUBLISH_MS: 1000
+      # CONFLUENT_METRICS_REPORTER_MAX_REQUEST_SIZE: 10485760
+      # To avoid race condition with control-center
+      # CONFLUENT_METRICS_REPORTER_TOPIC_CREATE: 'false'
+      CONFLUENT_METRICS_REPORTER_TOPIC_CREATE: 'true'
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.7.1
@@ -35,11 +45,11 @@ services:
     depends_on:
       - broker
     ports:
-      - "8089:8089"
+      - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8089
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   connect:
     image: cnfldemos/cp-server-connect-datagen:0.6.4-7.6.0
