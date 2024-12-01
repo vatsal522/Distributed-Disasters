@@ -8,8 +8,8 @@ import json
 DB_NAME = "autonomous_vehicle_system"
 DB_USER = "root"
 DB_PASSWORD = ""
-DB_HOST = "192.168.0.15"
-DB_PORT = "26256"
+DB_HOST = "localhost"
+DB_PORT = "26258"
 
 # Function to insert data into a table
 def insert_data_into_table(cursor, table_name, dataframe, columns):
@@ -21,6 +21,7 @@ def insert_data_into_table(cursor, table_name, dataframe, columns):
     :param dataframe: DataFrame containing the data
     :param columns: Columns to insert data into
     """
+    conn.commit()
     values = [tuple(row) for row in dataframe[columns].itertuples(index=False)]
     # Convert dataframe to list of tuples
     # values = [tuple(x) for x in dataframe.to_numpy()]
@@ -40,7 +41,7 @@ def insert_data_into_table(cursor, table_name, dataframe, columns):
 # Kafka Consumer configuration
 KAFKA_BROKER = 'localhost:9092'  # Replace with your Kafka broker's address
 TOPICS = ['vehicles', 'vehicle_status', 'routes', 'control_commands', 'collision_warnings', 'road_sensors', 'traffic_signals']  # List of topics to subscribe to
-GROUP_ID = 'python_kafka_consumer'  # Consumer group ID
+GROUP_ID = 'python_kafka_consumer9'  # Consumer group ID
 
 def consume_messages():
     # Consumer configuration
@@ -81,7 +82,11 @@ def consume_messages():
             table_name = msg.topic()
             dataframe = pd.DataFrame([data])
             columns = dataframe.columns.tolist()
-            insert_data_into_table(cursor, table_name, dataframe, columns)
+            try:
+                insert_data_into_table(cursor, table_name, dataframe, columns)
+            except Exception as e:
+                print(f"Error: {e}")
+                continue
 
         while True:
             # Poll for a message from the other topics
@@ -102,7 +107,11 @@ def consume_messages():
             table_name = msg.topic()
             dataframe = pd.DataFrame([data])
             columns = dataframe.columns.tolist()
-            insert_data_into_table(cursor, table_name, dataframe, columns)
+            try:
+                insert_data_into_table(cursor, table_name, dataframe, columns)
+            except Exception as e:
+                print(f"Error: {e}")
+                continue
 
     except KeyboardInterrupt:
         pass

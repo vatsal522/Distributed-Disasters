@@ -12,7 +12,7 @@ CREATE TABLE vehicles (
 );
 
 CREATE TABLE control_commands (
-    command_id SERIAL PRIMARY KEY,
+    command_id VARCHAR PRIMARY KEY,
     vehicle_id INT NOT NULL REFERENCES vehicles(vehicle_id),
     timestamp TIMESTAMPTZ DEFAULT now(),
     command_type TEXT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE control_commands (
 );
 
 CREATE TABLE collision_warnings (
-    warning_id SERIAL PRIMARY KEY,
+    warning_id VARCHAR PRIMARY KEY,
     vehicle_id INT NOT NULL REFERENCES vehicles(vehicle_id),
     timestamp TIMESTAMPTZ DEFAULT now(),
     latitude DECIMAL(9, 6) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE collision_warnings (
 );
 
 CREATE TABLE routes (
-    route_id SERIAL PRIMARY KEY,
+    route_id VARCHAR PRIMARY KEY,
     vehicle_id INT NOT NULL REFERENCES vehicles(vehicle_id),
     origin_latitude DECIMAL(9, 6) NOT NULL,
     origin_longitude DECIMAL(9, 6) NOT NULL,

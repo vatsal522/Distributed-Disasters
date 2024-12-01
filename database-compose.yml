@@ -6,7 +6,7 @@ services:
     container_name: cockroach-node1
     ports:
       - "26257:26257"
-      - "8080:8080"
+      - "3000:8080"
     volumes:
       - ./data/node1:/cockroach/cockroach-data
     command: start-single-node --insecure --advertise-addr=node1
@@ -18,7 +18,7 @@ services:
     container_name: cockroach-node2
     ports:
       - "26258:26257"
-      - "8081:8080"
+      - "5101:8080"
     volumes:
       - ./data/node2:/cockroach/cockroach-data
     command: start --insecure --join=node1:26257 --advertise-addr=node2
@@ -30,7 +30,7 @@ services:
     container_name: cockroach-node3
     ports:
       - "26259:26257"
-      - "8082:8080"
+      - "5100:8080"
     volumes:
       - ./data/node3:/cockroach/cockroach-data
     command: start --insecure --join=node1:26257 --advertise-addr=node3
@@ -41,7 +41,7 @@ services:
     image: cassandra:latest
     container_name: cassandra-container
     ports:
-      - "3000:9042"
+      - "5200:9042"
     environment:
       - CASSANDRA_USER=admin
       - CASSANDRA_PASSWORD=admin
