@@ -115,44 +115,20 @@ def convert_to_list_of_dicts(data):
     return [dict(zip(data, t)) for t in zip(*data.values())]
 
 vehicles_data = generate_vehicles_data()
-vehicle_status_data = generate_vehicle_status_data()
-routes_data = generate_routes_data()
-control_commands_data = generate_control_commands_data()
-collision_warnings_data = generate_collision_warnings_data()
-road_sensors_data = generate_road_sensors_data()
-traffic_signal_data = generate_traffic_signals_data()
-
-
 push_to_kafka('vehicles', convert_to_list_of_dicts(vehicles_data))
-push_to_kafka('vehicle_status', convert_to_list_of_dicts(vehicle_status_data))
-push_to_kafka('routes', convert_to_list_of_dicts(routes_data))
-push_to_kafka('control_commands', convert_to_list_of_dicts(control_commands_data))
-push_to_kafka('collision_warnings', convert_to_list_of_dicts(collision_warnings_data))
-push_to_kafka('road_sensors', convert_to_list_of_dicts(road_sensors_data))
-push_to_kafka('traffic_signals', convert_to_list_of_dicts(traffic_signal_data))
+
+for i in range(50):
+    vehicle_status_data = generate_vehicle_status_data()
+    routes_data = generate_routes_data()
+    control_commands_data = generate_control_commands_data()
+    collision_warnings_data = generate_collision_warnings_data()
+    road_sensors_data = generate_road_sensors_data()
+    traffic_signal_data = generate_traffic_signals_data()
 
 
-
-
-# # Create DataFrames
-# vehicles_df = pd.DataFrame(generate_vehicles_data())
-# vehicle_status_df = pd.DataFrame(generate_vehicle_status_data())
-# routes_df = pd.DataFrame(generate_routes_data())
-# control_commands_df = pd.DataFrame(generate_control_commands_data())
-# collision_warnings_df = pd.DataFrame(generate_collision_warnings_data())
-# road_sensors_df = pd.DataFrame(generate_road_sensors_data())
-# traffic_signals_df = pd.DataFrame(generate_traffic_signals_data())
-
-# Display all tables
-# Save all the generated data into an Excel file with separate sheets for each table
-# with pd.ExcelWriter("database_tables.xlsx") as writer:
-#     vehicles_df.to_excel(writer, sheet_name="Vehicles", index=False)
-#     vehicle_status_df.to_excel(writer, sheet_name="Vehicle_Status", index=False)
-#     routes_df.to_excel(writer, sheet_name="Routes", index=False)
-#     control_commands_df.to_excel(writer, sheet_name="Control_Commands", index=False)
-#     collision_warnings_df.to_excel(writer, sheet_name="Collision_Warnings", index=False)
-#     road_sensors_df.to_excel(writer, sheet_name="Road_Sensors", index=False)
-#     traffic_signals_df.to_excel(writer, sheet_name="Traffic_Signals", index=False)
-
-# print("Excel file 'database_tables.xlsx' has been created successfully.")
-
+    push_to_kafka('vehicle_status', convert_to_list_of_dicts(vehicle_status_data))
+    push_to_kafka('routes', convert_to_list_of_dicts(routes_data))
+    push_to_kafka('control_commands', convert_to_list_of_dicts(control_commands_data))
+    push_to_kafka('collision_warnings', convert_to_list_of_dicts(collision_warnings_data))
+    push_to_kafka('road_sensors', convert_to_list_of_dicts(road_sensors_data))
+    push_to_kafka('traffic_signals', convert_to_list_of_dicts(traffic_signal_data))

@@ -25,6 +25,31 @@ services:
     networks:
       - cockroachdb-net
 
+  node3:
+    image: cockroachdb/cockroach:latest
+    container_name: cockroach-node3
+    ports:
+      - "26259:26257"
+      - "8082:8080"
+    volumes:
+      - ./data/node3:/cockroach/cockroach-data
+    command: start --insecure --join=node1:26257 --advertise-addr=node3
+    networks:
+      - cockroachdb-net
+
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra-container
+    ports:
+      - "3000:9042"
+    environment:
+      - CASSANDRA_USER=admin
+      - CASSANDRA_PASSWORD=admin
+    volumes:
+      - ./data/cassandra:/var/lib/cassandra
+    networks:
+      - cockroachdb-net
+
 networks:
   cockroachdb-net:
     driver: bridge
