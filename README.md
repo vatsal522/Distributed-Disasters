@@ -1,13 +1,15 @@
-# Autonomous Vehicle System - Distributed Disasters
+# Autonomous Vehicle System
 
-## Team Name
-**Distributed Disasters**
+## Team Name - Distributed Disasters
 
 ## Team Members
 - **Meet Sanjaykumar Modi** (1233513465)
 - **Vatsal Gaurang Shah** (1229832502)
 - **Tanaya Lad** (1229281978)
 - **Dharmil Rajesh Gada** (1229619536)
+
+### Affiliation
+This project was developed as part of coursework for *CSE 512: Distributed Database Systems* at **Arizona State University (ASU)**.
 
 ## 1. Introduction
 
@@ -75,3 +77,6 @@ This project aims to design and implement a distributed database system using Co
 
 ## References
 1. CockroachDB Docs - CockroachDB Cluster Setup. [Link](https://www.cockroachlabs.com/docs/cockroachcloud/)
+2. DBeaver Docs - [Link](https://dbeaver.com/docs/dbeaver/ER-Diagrams/)
+3. Confluent Docs - [Link](https://docs.confluent.io/platform/current/get-started/platform-quickstart.html)
+4. ONMNX Python Library - [Link](https://osmnx.readthedocs.io/en/stable/)
